@@ -1,23 +1,22 @@
 services:
-  type: web
-  name: login-backend-api
-  runtime: java
-  plan: free
-  buildCommand: mvn clean package -DskipTests
-  startCommand: java -jar target/login-backend-*.jar
-  envVars:
-    - key: SPRING_DATASOURCE_URL
-      sync: false
-      value: jdbc:mysql://your-mysql-host:3306/your_db
-    - key: SPRING_DATASOURCE_USERNAME
-      sync: false
-      value: your_username
-    - key: SPRING_DATASOURCE_PASSWORD
-      sync: false
-      value: your_password
-    - key: SPRING_JPA_HIBERNATE_DDL_AUTO
-      sync: false
-      value: update
-    - key: JWT_SECRET
-      sync: false
-      value: tu_clave_secreta_super_segura_12345678901234567890
+  - type: web
+    name: login-backend-api
+    runtime: java
+    plan: free
+    buildCommand: sh mvnw clean package -DskipTests
+    startCommand: java -jar target/login-backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: JAVA_VERSION
+        value: 21
+      - key: PORT
+        value: 8080
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
