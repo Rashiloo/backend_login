@@ -8,13 +8,13 @@ services:
   envVars:
     - key: SPRING_DATASOURCE_URL
       sync: false
-      value: jdbc:mysql://containers-us-west-XXX.railway.app:3306/railway
+      value: jdbc:mysql://your-mysql-host:3306/your_db
     - key: SPRING_DATASOURCE_USERNAME
       sync: false
-      value: root
+      value: your_username
     - key: SPRING_DATASOURCE_PASSWORD
       sync: false
-      value: ${RAILWAY_PRIVATE_MYSQL_PASSWORD}
+      value: your_password
     - key: SPRING_JPA_HIBERNATE_DDL_AUTO
       sync: false
       value: update
