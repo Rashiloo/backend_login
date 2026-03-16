@@ -9,6 +9,7 @@ import com.login.login_backend.model.User;
 import com.login.login_backend.repository.UserRepository;
 import com.login.login_backend.security.JwtUtil;
 import com.login.login_backend.service.AuditService;
+import com.login.login_backend.service.EmailService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,17 +30,20 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditService auditService;
+    private final EmailService emailService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtUtil jwtUtil,
                           UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
-                          AuditService auditService) {
+                          AuditService auditService,
+                          EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.auditService = auditService;
+        this.emailService = emailService;
     }
 
     @PostMapping("/login")
@@ -138,9 +142,20 @@ public class AuthController {
         user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
         userRepository.save(user);
 
-        auditService.logPasswordReset(request.getEmail(), getClientIpAddress(httpRequest), false);
-
-        return "Se ha enviado un email con instrucciones para recuperar tu contraseña";
+        // Enviar email con el token
+        try {
+            emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+            auditService.logPasswordReset(request.getEmail(), getClientIpAddress(httpRequest), false);
+            return "Se ha enviado un email con instrucciones para recuperar tu contraseña";
+        } catch (Exception e) {
+            // Si falla el envío de email, limpiar el token y notificar el error
+            user.setResetToken(null);
+            user.setResetTokenExpiry(null);
+            userRepository.save(user);
+            
+            auditService.logPasswordReset(request.getEmail(), getClientIpAddress(httpRequest), false);
+            throw new RuntimeException("Error al enviar el email de recuperación. Por favor, intenta más tarde.");
+        }
     }
 
     @PostMapping("/reset-password")
