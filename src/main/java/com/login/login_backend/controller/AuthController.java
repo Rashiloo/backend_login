@@ -128,7 +128,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(@RequestBody ForgotPasswordRequest request) {
+    public String forgotPassword(@RequestBody ForgotPasswordRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email no encontrado"));
 
@@ -144,7 +144,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestBody ResetPasswordRequest request) {
+    public String resetPassword(@RequestBody ResetPasswordRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByResetToken(request.getToken())
                 .orElseThrow(() -> new RuntimeException("Token inválido o expirado"));
 
@@ -165,7 +165,7 @@ public class AuthController {
 
     @PostMapping("/change-password")
     public String changePassword(@RequestBody ChangePasswordRequest request, 
-                                   @RequestHeader("Authorization") String token) {
+                                   @RequestHeader("Authorization") String token, HttpServletRequest httpRequest) {
         String email = jwtUtil.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
