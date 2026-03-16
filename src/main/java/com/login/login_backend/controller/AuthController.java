@@ -143,7 +143,7 @@ public class AuthController {
 
         // Enviar email con el token
         try {
-            emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+            // emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
             auditService.logPasswordReset(request.getEmail(), getClientIpAddress(httpRequest), false);
             return "Se ha enviado un email con instrucciones para recuperar tu contraseña";
         } catch (Exception e) {

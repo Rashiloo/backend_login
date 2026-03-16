@@ -51,7 +51,7 @@ public class EmailService {
      * Construye el contenido HTML del email de recuperación
      */
     private String buildPasswordResetEmailHtml(String resetLink, String userEmail) {
-        return """
+        String htmlTemplate = """
             <!DOCTYPE html>
             <html>
             <head>
@@ -152,7 +152,9 @@ public class EmailService {
                 </div>
             </body>
             </html>
-            """.formatted(userEmail, resetLink, resetLink);
+            """;
+        
+        return String.format(htmlTemplate, userEmail, resetLink, resetLink);
     }
 
     /**
