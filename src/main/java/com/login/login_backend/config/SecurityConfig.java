@@ -50,7 +50,7 @@ public class SecurityConfig {
             @Override
             public org.springframework.web.cors.CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
-                config.setAllowedOrigins(Arrays.asList("https://login-frontend.onrender.com", "http://localhost:4200"));
+                config.setAllowedOrigins(Arrays.asList("https://frontend-login-m0xf.onrender.com", "http://localhost:4200"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
                 config.setAllowCredentials(true);
