@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -37,5 +38,14 @@ public class User {
 
     @Column(nullable = false)
     private boolean enabled;
+
+    @Column(nullable = true)
+    private String resetToken;
+
+    @Column(nullable = true)
+    private LocalDateTime resetTokenExpiry;
+
+    @Column(nullable = true)
+    private LocalDateTime passwordChangedAt;
 }
 

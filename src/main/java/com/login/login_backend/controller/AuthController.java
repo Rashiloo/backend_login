@@ -2,6 +2,9 @@ package com.login.login_backend.controller;
 
 import com.login.login_backend.dto.LoginRequest;
 import com.login.login_backend.dto.LoginResponse;
+import com.login.login_backend.dto.ForgotPasswordRequest;
+import com.login.login_backend.dto.ResetPasswordRequest;
+import com.login.login_backend.dto.ChangePasswordRequest;
 import com.login.login_backend.model.User;
 import com.login.login_backend.repository.UserRepository;
 import com.login.login_backend.security.JwtUtil;
@@ -13,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -120,5 +125,61 @@ public class AuthController {
         String email = jwtUtil.getUsernameFromToken(token);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email no encontrado"));
+
+        // Generar token único
+        String resetToken = UUID.randomUUID().toString();
+        user.setResetToken(resetToken);
+        user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        auditService.logPasswordReset(request.getEmail(), getClientIpAddress(httpRequest), false);
+
+        return "Se ha enviado un email con instrucciones para recuperar tu contraseña";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestBody ResetPasswordRequest request) {
+        User user = userRepository.findByResetToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Token inválido o expirado"));
+
+        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token ha expirado");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        user.setPasswordChangedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        auditService.logPasswordReset(user.getEmail(), getClientIpAddress(httpRequest), true);
+
+        return "Contraseña actualizada exitosamente";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestBody ChangePasswordRequest request, 
+                                   @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.getUsernameFromToken(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Contraseña actual incorrecta");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPasswordChangedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        auditService.logPasswordChange(user.getEmail(), getClientIpAddress(httpRequest), true);
+
+        return "Contraseña cambiada exitosamente";
     }
 }

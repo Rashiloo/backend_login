@@ -47,6 +47,16 @@ public class AuditService {
         auditLogs.add(new AuditLog("LOGOUT", email, ipAddress, "Cierre de sesión"));
     }
     
+    public void logPasswordReset(String email, String ipAddress, boolean success) {
+        String details = success ? "Recuperación de contraseña exitosa" : "Recuperación de contraseña fallida";
+        auditLogs.add(new AuditLog("PASSWORD_RESET", email, ipAddress, details));
+    }
+    
+    public void logPasswordChange(String email, String ipAddress, boolean success) {
+        String details = success ? "Cambio de contraseña exitoso" : "Cambio de contraseña fallido";
+        auditLogs.add(new AuditLog("PASSWORD_CHANGE", email, ipAddress, details));
+    }
+    
     public List<AuditLog> getAuditLogs() {
         return new ArrayList<>(auditLogs);
     }
