@@ -1,6 +1,10 @@
 # Etapa de construcción
 FROM eclipse-temurin:21-jdk-jammy AS build
 COPY . .
+
+# ESTA ES LA LÍNEA NUEVA QUE ARREGLA EL ERROR:
+RUN chmod +x mvnw
+
 RUN ./mvnw clean package -DskipTests
 
 # Etapa de ejecución
